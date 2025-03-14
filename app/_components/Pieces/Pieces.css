@@ -1,25 +1,9 @@
-.pieces {
-  right: 0;
-  top: 0;
-  position: absolute;
-  left: calc(0.25 * var(--tile-size));
-  bottom: calc(0.25 * var(--tile-size));
-}
-
 .piece {
-  width: 100%;
-  height: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 80%;
-  cursor: grab;
-  pointer-events: auto;
+  width: 12.5%;
+  height: 12.5%;
+  background-size: 100%;
+  position: absolute;
 }
-
-.piece:active {
-  cursor: grabbing;
-}
-
 /* White pieces */
 .wp {
   background-image: url("../../_assets/wp.png");

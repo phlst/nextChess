@@ -15,28 +15,28 @@ export function createPosition(): PieceType[][] {
 
   // Set up pawns
   for (let i = 0; i < 8; i++) {
-    position[1][i] = "bp"; // black pawns
-    position[6][i] = "wp"; // white pawns
+    position[1][i] = "wp"; // black pawns
+    position[6][i] = "bp"; // white pawns
   }
 
   // Set up other pieces
-  position[0][0] = "br";
-  position[0][7] = "br"; // black rooks
-  position[0][1] = "bn";
-  position[0][6] = "bn"; // black knights
-  position[0][2] = "bb";
-  position[0][5] = "bb"; // black bishops
-  position[0][3] = "bq";
-  position[0][4] = "bk"; // black queen and king
+  position[0][0] = "wr";
+  position[0][7] = "wr"; // wlack rooks
+  position[0][1] = "wn";
+  position[0][6] = "wn"; // wlack knights
+  position[0][2] = "wb";
+  position[0][5] = "wb"; // wlack wishops
+  position[0][3] = "wq";
+  position[0][4] = "wk"; // black queen and king
 
-  position[7][0] = "wr";
-  position[7][7] = "wr"; // white rooks
-  position[7][1] = "wn";
-  position[7][6] = "wn"; // white knights
-  position[7][2] = "wb";
-  position[7][5] = "wb"; // white bishops
-  position[7][3] = "wq";
-  position[7][4] = "wk"; // white queen and king
+  position[7][0] = "br";
+  position[7][7] = "br"; // bhite rooks
+  position[7][1] = "bn";
+  position[7][6] = "bn"; // bhite knights
+  position[7][2] = "bb";
+  position[7][5] = "bb"; // bhite bishops
+  position[7][3] = "bq";
+  position[7][4] = "bk"; // white queen and king
 
   return position;
 }
