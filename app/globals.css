@@ -8,14 +8,26 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-light-tile: var(--light-tile);
+  --color-dark-tile: var(--dark-tile);
+  --tile-size: var(--tile-size);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --board-size: calc(8 * var(--tile-size));
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --tile-size: 100px;
+    --light-tile: #f0d8b7;
+    --dark-tile: #b48764;
+  }
+}
+@media (max-width: 900px) {
+  :root {
+    --tile-size: 50px;
   }
 }
 
