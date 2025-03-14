@@ -22,7 +22,11 @@ function Board() {
         <>
           {ranks.map((rank, i) =>
             files.map((file, j) => (
-              <div key={file + "-" + rank} className={getClassName(7 - i, j)} />
+              <div
+                key={file + "-" + rank}
+                draggable={false}
+                className={getClassName(7 - i, j)}
+              />
             ))
           )}
         </>
