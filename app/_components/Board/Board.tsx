@@ -1,4 +1,5 @@
 import Files from "./Files";
+import Pieces from "../Pieces/Pieces";
 import Ranks from "./Ranks";
 
 function getClassName(i: number, j: number) {
@@ -13,18 +14,21 @@ function Board() {
     .map((x, i) => 8 - i);
   const files = Array(8)
     .fill("")
-    .map((x, i) => i + i);
+    .map((x, i) => i + 1);
   return (
-    <div className="grid h-[var(--board-size)] w-[var(--board-size)] grid-cols-8 grid-rows-8">
-      <div className="grid h-full top-0  w-full grid-cols-8 grid-rows-8">
-        {ranks.map((rank, i) =>
-          files.map((file, j) => (
-            <div key={file + "-" + rank} className={getClassName(7 - i, j)} />
-          ))
-        )}
+    <div className="relative flex items-center justify-center p-8">
+      <div className="grid h-[var(--board-size)] relative w-[var(--board-size)] grid-cols-8 grid-rows-8">
+        <Ranks ranks={ranks} />
+        <>
+          {ranks.map((rank, i) =>
+            files.map((file, j) => (
+              <div key={file + "-" + rank} className={getClassName(7 - i, j)} />
+            ))
+          )}
+        </>
+        <Pieces />
+        <Files files={files} />
       </div>
-      <Files files={files} />
-      <Ranks ranks={ranks} />
     </div>
   );
 }
