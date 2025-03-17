@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createPosition } from "@/app/helper";
 
 export enum GameState {
@@ -19,7 +19,19 @@ const initialState: GameStateType = {
 export const gameSlice = createSlice({
   name: "game",
   initialState,
-  reducers: {},
+  reducers: {
+    clearPosition: (
+      state,
+      action: PayloadAction<{ rank: number | string; file: number | string }>
+    ) => {
+      const { rank, file } = action.payload;
+      // Using Immer under the hood, this syntax is safe for immutable updates
+      state.position[rank as number][file as number] = "";
+    },
+  },
 });
+
+// Export the action creators
+export const { clearPosition } = gameSlice.actions;
 
 export default gameSlice.reducer;
