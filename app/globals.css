@@ -6,6 +6,8 @@
   --tile-size: 80px;
   --light-tile: #f0d8b7;
   --dark-tile: #b48764;
+  --light-tile-hover: #f5e1c5;
+  --dark-tile-hover: #c09878;
 }
 
 @theme inline {
@@ -37,18 +39,284 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
 }
 
 .bg-light-tile {
   background-color: var(--light-tile);
+  transition: background-color 0.2s;
+}
+
+.bg-light-tile:hover {
+  background-color: var(--light-tile-hover);
 }
 
 .bg-dark-tile {
   background-color: var(--dark-tile);
+  transition: background-color 0.2s;
+}
+
+.bg-dark-tile:hover {
+  background-color: var(--dark-tile-hover);
 }
 
 .tile {
   width: var(--tile-size);
   height: var(--tile-size);
+  user-select: none;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Style for turn indicator */
+.turn-indicator {
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1.5rem;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  z-index: 10;
+}
+
+.turn-indicator.white {
+  color: #000;
+  background-color: #f8f8f8;
+}
+
+.turn-indicator.black {
+  color: #fff;
+  background-color: #333;
+}
+
+/* Optional: Style to highlight pieces that can be moved this turn */
+.piece[data-color="w"] {
+  cursor: var(--current-turn-w, pointer);
+}
+
+.piece[data-color="b"] {
+  cursor: var(--current-turn-b, pointer);
+}
+
+.current-turn-w {
+  --current-turn-w: grab;
+  --current-turn-b: not-allowed;
+}
+
+.current-turn-b {
+  --current-turn-w: not-allowed;
+  --current-turn-b: grab;
+}
+
+/* Add this at the end of your global CSS */
+.select-none {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Add these at the end of your file */
+/* Improve performance of draggable elements */
+.will-change-transform {
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Ensure board and squares have stable dimensions */
+#grid {
+  box-sizing: content-box;
+  border: 2px solid #333;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Fix the container */
+.piece-container {
+  position: fixed;
+  pointer-events: none;
+}
+
+/* Add a check indicator style */
+@keyframes check-pulse {
+  0% {
+    box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0px rgba(255, 0, 0, 0);
+  }
+}
+
+.king-in-check {
+  animation: check-pulse 1.5s infinite;
+  box-shadow: 0 0 8px 4px rgba(255, 0, 0, 0.6);
+  border-radius: 50%;
+  z-index: 20;
+}
+
+/* Style for king square in check */
+.king-check-square {
+  position: relative;
+  background-color: rgba(255, 0, 0, 0.5) !important; /* Red background */
+  animation: pulse-bg 1.5s infinite;
+}
+
+.king-check-square::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(255, 0, 0, 0.8);
+  z-index: 10;
+}
+
+@keyframes pulse-bg {
+  0% {
+    background-color: rgba(255, 0, 0, 0.3);
+  }
+  50% {
+    background-color: rgba(255, 0, 0, 0.6);
+  }
+  100% {
+    background-color: rgba(255, 0, 0, 0.3);
+  }
+}
+
+/* Game status styles */
+.game-over-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+/* Button styles */
+.chess-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primary-button {
+  background-color: #2563eb;
+  color: white;
+}
+
+.primary-button:hover {
+  background-color: #1d4ed8;
+}
+
+.danger-button {
+  background-color: #dc2626;
+  color: white;
+}
+
+.danger-button:hover {
+  background-color: #b91c1c;
+}
+
+/* Side panel styles */
+.chess-side-panel {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  :root {
+    --tile-size: 40px; /* Smaller tiles on mobile */
+  }
+
+  .chess-side-panel {
+    width: 100%;
+    max-width: var(--board-size);
+  }
+
+  .chess-side-panel {
+    max-width: 100%;
+  }
+
+  .main-board-container {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Enhanced button styles */
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+button:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0) translate(-50%, -50%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20) translate(-50%, -50%);
+    opacity: 0;
+  }
+}
+
+/* Main board container styling */
+.main-board-container {
+  position: relative;
+  padding: 0.5rem;
+}
+
+.board-wrapper {
+  position: relative;
+  padding: 0.75rem;
+  background: linear-gradient(45deg, #2a2a2a, #3a3a3a);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }

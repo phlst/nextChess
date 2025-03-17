@@ -1,42 +1,97 @@
 import { PieceType } from "@/app/helper";
-import { RootState } from "@/app/_store/store";
-import { useSelector, useDispatch } from "react-redux";
-import { clearPosition } from "@/app/_store/gameState/gameState";
+import { useRef } from "react";
 
 interface PieceProps {
   piece: PieceType;
-  rank: number;
-  file: number;
+  rank: number; // Array index 0-7 (rank 8 to rank 1)
+  file: number; // Array index 0-7 (file a to file h)
+  onPieceDragStart?: (
+    piece: PieceType,
+    rank: number,
+    file: number
+  ) => boolean | void;
+  onPieceDragEnd?: () => void;
 }
 
-function Piece({ piece, rank, file }: PieceProps) {
-  const dispatch = useDispatch();
+function Piece({
+  piece,
+  rank,
+  file,
+  onPieceDragStart,
+  onPieceDragEnd,
+}: PieceProps) {
+  const pieceRef = useRef<HTMLDivElement>(null);
 
   const onDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    // Call the parent's drag start handler, which returns false if the move is not allowed
+    if (onPieceDragStart && onPieceDragStart(piece, rank, file) === false) {
+      // Cancel the drag operation if not allowed
+      e.preventDefault();
+      return false;
+    }
+
+    // Set the drag image to a clone of the piece to avoid the "ghost" effect
+    if (pieceRef.current) {
+      const rect = pieceRef.current.getBoundingClientRect();
+      const ghostPiece = pieceRef.current.cloneNode(true) as HTMLDivElement;
+
+      // Style the ghost to match the original piece
+      ghostPiece.style.width = `${rect.width}px`;
+      ghostPiece.style.height = `${rect.height}px`;
+      ghostPiece.style.opacity = "0.8";
+      ghostPiece.style.position = "absolute";
+      ghostPiece.style.top = "-1000px"; // Hide it off-screen
+      document.body.appendChild(ghostPiece);
+
+      // Set custom drag image
+      e.dataTransfer.setDragImage(ghostPiece, rect.width / 2, rect.height / 2);
+
+      // Remove the ghost element after a delay
+      setTimeout(() => {
+        document.body.removeChild(ghostPiece);
+      }, 0);
+    }
+
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", `${piece},${file},${rank}`);
-    setTimeout(() => {
-      (e.target as HTMLDivElement).style.display = "none";
-    }, 0);
+
+    // Instead of hiding the original piece, add a class to reduce its opacity
+    if (pieceRef.current) {
+      pieceRef.current.classList.add("dragging");
+    }
   };
 
-  const onDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
-    (e.target as HTMLDivElement).style.display = "";
-    const targetClasses = (e.target as HTMLDivElement).className;
-    const filtered = targetClasses.split(" ")[2].split("-")[1].split("");
-    const pieceRank = filtered[1];
-    const pieceFile = filtered[0];
+  const onDragEnd = () => {
+    // Remove the dragging class
+    if (pieceRef.current) {
+      pieceRef.current.classList.remove("dragging");
+    }
 
-    // Dispatch action to update position instead of direct mutation
-    dispatch(clearPosition({ rank: pieceRank, file: pieceFile }));
+    if (onPieceDragEnd) {
+      onPieceDragEnd();
+    }
+  };
+
+  // Add this handler to prevent text selection on rapid clicks
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent text selection behavior
+    if (e.detail > 1) {
+      e.preventDefault();
+    }
   };
 
   return (
     <div
+      ref={pieceRef}
       className={`piece ${piece} p-${file}${rank}`}
-      onDragStart={(e) => onDragStart(e)}
-      onDragEnd={(e) => onDragEnd(e)}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onMouseDown={handleMouseDown}
       draggable={true}
+      data-piece={piece}
+      data-array-rank={rank}
+      data-array-file={file}
+      data-color={piece[0]}
     />
   );
 }

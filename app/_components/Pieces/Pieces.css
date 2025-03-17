@@ -3,6 +3,10 @@
   height: 12.5%;
   background-size: 100%;
   position: absolute;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 /* White pieces */
 .wp {
@@ -42,6 +46,13 @@
 .bk {
   background-image: url("../../_assets/bk.png");
 }
+
+/* 
+ * Ensure piece positioning classes match the array indices:
+ * p-filerank where:
+ * - file (0-7) corresponds to a-h from left to right
+ * - rank (0-7) corresponds to 8-1 from top to bottom with our reversed board
+ */
 
 .piece.p-07 {
   transform: translate(0%, 0%);
@@ -241,4 +252,9 @@
 }
 .piece.p-70 {
   transform: translate(700%, 700%);
+}
+
+.piece.dragging {
+  opacity: 0.5;
+  pointer-events: none;
 }

@@ -1,0 +1,12 @@
+/* This CSS file provides fixes for piece positioning */
+
+/* Ensure pieces appear in their correct squares */
+.piece {
+  z-index: 10;
+}
+
+/* Remove this rule since we don't have highlighted squares anymore
+.highlighted-square::after {
+  z-index: 5;
+}
+*/

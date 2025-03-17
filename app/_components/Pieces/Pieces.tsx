@@ -4,7 +4,14 @@ import { RootState } from "@/app/_store/store";
 import Piece from "./Piece";
 import "./Pieces.css";
 
-function Pieces() {
+import { PieceType } from "@/app/helper";
+
+interface PiecesProps {
+  onDragStart?: (piece: PieceType, rank: number, file: number) => void;
+  onDragEnd?: () => void;
+}
+
+function Pieces({ onDragStart, onDragEnd }: PiecesProps) {
   const ref = useRef<HTMLDivElement>(null);
   const currentPosition = useSelector(
     (state: RootState) => state.gameState.position
@@ -23,6 +30,8 @@ function Pieces() {
               rank={rank}
               file={file}
               piece={piece}
+              onPieceDragStart={onDragStart}
+              onPieceDragEnd={onDragEnd}
             />
           ) : null
         )
