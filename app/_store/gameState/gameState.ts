@@ -102,22 +102,24 @@ export const gameSlice = createSlice({
       state.check.white = isKingInCheck(state.position, "w");
       state.check.black = isKingInCheck(state.position, "b");
 
-      // Check for checkmate
-      if (state.check[nextTurn === "w" ? "white" : "black"]) {
+      // Check for checkmate or stalemate
+      const isNextPlayerInCheck =
+        nextTurn === "w" ? state.check.white : state.check.black;
+
+      if (isNextPlayerInCheck) {
         if (isCheckmate(state.position, nextTurn)) {
+          // The previous player (who just moved) wins
           state.gameStatus = {
             isOver: true,
             result: "checkmate",
-            winner: nextTurn === "w" ? "b" : "w", // The previous player who just moved won
+            winner: nextTurn === "w" ? "b" : "w",
           };
         }
-      }
-      // Check for stalemate
-      else if (isStalemate(state.position, nextTurn)) {
+      } else if (isStalemate(state.position, nextTurn)) {
         state.gameStatus = {
           isOver: true,
           result: "stalemate",
-          winner: null, // Draw in case of stalemate
+          winner: null,
         };
       }
     },

@@ -15,7 +15,7 @@ import {
   simulateMove,
   isKingInCheck,
 } from "@/app/utils/chessMoves";
-import { useState } from "react";
+import React, { useState } from "react";
 import PromotionModal from "../Promotion/PromotionModal";
 
 function getClassName(i: number, j: number) {
@@ -84,6 +84,9 @@ function Board() {
 
   // Add state for chat panel
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  // Add state for notification
+  const [showNotification, setShowNotification] = useState(true);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -275,21 +278,61 @@ function Board() {
     }
   }
 
+  // Helper to get appropriate medal icon based on result
+  const getMedalIcon = () => {
+    if (!gameStatus.isOver) return null;
+
+    if (
+      gameStatus.result === "checkmate" ||
+      gameStatus.result === "resignation"
+    ) {
+      const isWinner = gameStatus.winner === currentTurn;
+      return isWinner
+        ? "🏆" // Trophy for winner
+        : "🥈"; // Silver medal for loser
+    } else if (
+      gameStatus.result === "stalemate" ||
+      gameStatus.result === "draw"
+    ) {
+      return "🤝"; // Handshake for draw
+    }
+    return "🎮"; // Default game icon
+  };
+
+  // Handle notification close
+  const handleCloseNotification = () => {
+    setShowNotification(false);
+  };
+
+  // Reset show notification when game status changes
+  React.useEffect(() => {
+    if (gameStatus.isOver) {
+      setShowNotification(true);
+    }
+  }, [gameStatus.isOver]);
+
   return (
     <div className="relative flex flex-col lg:flex-row items-center justify-center p-4 select-none">
-      {/* Game result overlay */}
-      {gameStatus.isOver && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-2xl text-center transform transition-all max-w-md w-full">
-            <h2 className="text-3xl font-bold text-red-600 dark:text-red-400 mb-6">
-              {gameResultMessage}
-            </h2>
-            <button
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-lg transform hover:-translate-y-1"
-              onClick={handleResetGame}
-            >
-              New Game
-            </button>
+      {/* Replace the full screen game result with a notification badge */}
+      {gameStatus.isOver && showNotification && (
+        <div className="game-notification">
+          <div className="medal-icon">{getMedalIcon()}</div>
+          <div className="notification-content">
+            <h3>{gameResultMessage}</h3>
+            <div className="notification-actions">
+              <button
+                onClick={handleResetGame}
+                className="notification-btn primary"
+              >
+                New Game
+              </button>
+              <button
+                onClick={handleCloseNotification}
+                className="notification-btn secondary"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -301,7 +344,7 @@ function Board() {
           <div
             id="grid"
             className={`grid h-[var(--board-size)] w-[var(--board-size)] relative grid-cols-8 grid-rows-8 select-none will-change-transform rounded-md shadow-xl ${
-              gameStatus.isOver ? "opacity-80" : ""
+              gameStatus.isOver ? "opacity-90" : ""
             }`}
             style={{ transform: "translateZ(0)" }}
             onDragOver={gameStatus.isOver ? undefined : handleDragOver}
@@ -339,12 +382,7 @@ function Board() {
             <Pieces onDragStart={handleDragStart} onDragEnd={handleDragEnd} />
             <Files files={files} />
 
-            {/* Turn indicator at bottom of board */}
-            <div className="absolute -bottom-12 left-0 right-0 text-center">
-              <span className="inline-block px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-full shadow-md font-semibold">
-                {currentTurn === "w" ? "White" : "Black"}&apos;s turn
-              </span>
-            </div>
+            {/* Remove the turn indicator at bottom of board */}
 
             {/* Promotion Modal */}
             <PromotionModal
@@ -370,15 +408,24 @@ function Board() {
                 <span className="inline-block w-3 h-3 rounded-full bg-white mr-2"></span>
                 <span className="font-medium">White</span>
               </div>
-              <span
-                className={`px-2 py-1 rounded-md ${
-                  checkStatus.white
-                    ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-                    : "text-gray-500"
-                }`}
-              >
-                {checkStatus.white ? "In Check!" : ""}
-              </span>
+              <div className="flex items-center">
+                <span
+                  className={`px-2 py-1 ${
+                    currentTurn === "w"
+                      ? "bg-blue-100 text-blue-700 rounded-md"
+                      : ""
+                  }`}
+                >
+                  {currentTurn === "w" ? "Playing" : ""}
+                </span>
+                <span
+                  className={`ml-2 ${
+                    checkStatus.white ? "text-red-600 font-bold" : ""
+                  }`}
+                >
+                  {checkStatus.white ? "Check!" : ""}
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center justify-between">
@@ -386,15 +433,24 @@ function Board() {
                 <span className="inline-block w-3 h-3 rounded-full bg-gray-800 mr-2"></span>
                 <span className="font-medium">Black</span>
               </div>
-              <span
-                className={`px-2 py-1 rounded-md ${
-                  checkStatus.black
-                    ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
-                    : "text-gray-500"
-                }`}
-              >
-                {checkStatus.black ? "In Check!" : ""}
-              </span>
+              <div className="flex items-center">
+                <span
+                  className={`px-2 py-1 ${
+                    currentTurn === "b"
+                      ? "bg-blue-100 text-blue-700 rounded-md"
+                      : ""
+                  }`}
+                >
+                  {currentTurn === "b" ? "Playing" : ""}
+                </span>
+                <span
+                  className={`ml-2 ${
+                    checkStatus.black ? "text-red-600 font-bold" : ""
+                  }`}
+                >
+                  {checkStatus.black ? "Check!" : ""}
+                </span>
+              </div>
             </div>
           </div>
         </div>
